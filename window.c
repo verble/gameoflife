@@ -14,8 +14,8 @@
 // Function prototypes
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode);
 
-const GLuint WIDTH = 500;
-const GLuint HEIGHT = 500;
+const GLuint WIDTH = 640;
+const GLuint HEIGHT = 200;
 
 GLFWwindow* init_graphics() {
 
@@ -45,11 +45,11 @@ void terminate_graphics() {
     glfwTerminate();
 }
 
-void run_window() {
+void run_window(char* boardstr) {
 
     GLFWwindow* window = init_graphics();
 
-    Board b = board_generate(5, 5, 1, "0000000000011100000000000");
+    Board b = board_generate(64, 20, 1, boardstr);
     BoardGraphics g = board_graphics_create(b);
 
     // timer
@@ -92,7 +92,13 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
     }
 }
 
-int main() {
-    run_window();
+int main(int argc, char** argv) {
+    if (argc < 2) {
+        puts("Error: no board supplied as input");
+        return -1;
+    } else {
+        run_window(argv[1]);
+    }
+
     return 0;
 }

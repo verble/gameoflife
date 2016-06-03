@@ -28,4 +28,4 @@ clean:
 	rm -f *.o
 
 run: test
-	./test
+	cat board.txt | tr -d '\n' | xargs ./test
