@@ -4,9 +4,11 @@
 #include <GLFW/glfw3.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <time.h>
 #include "shader.h"
 #include "board.h"
 #include "board_graphics.h"
+#include "millitime.h"
 
 
 // Function prototypes
@@ -48,6 +50,7 @@ void run_window() {
     GLFWwindow* window = init_graphics();
 
     Board b = board_generate(5, 5, 1, "0000000000011100000000000");
+
     GLfloat* positions = generate_pos_buffer(b);
     GLfloat* colors = generate_col_buffer(b);
 
@@ -70,7 +73,7 @@ void run_window() {
     glBindBuffer(GL_ARRAY_BUFFER, position_buffer);
     glBufferData(GL_ARRAY_BUFFER, (25 * 2 * 3 * 2 * sizeof(GLfloat)), positions, GL_STATIC_DRAW);
     glBindBuffer(GL_ARRAY_BUFFER, color_buffer);
-    glBufferData(GL_ARRAY_BUFFER, (25 * 2 * 3 * 3 * sizeof(GLfloat)), colors, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, (25 * 2 * 3 * 3 * sizeof(GLfloat)), colors, GL_STREAM_DRAW);
 
     // register attributes
     glBindBuffer(GL_ARRAY_BUFFER, position_buffer);
@@ -82,12 +85,35 @@ void run_window() {
 
     glBindVertexArray(0);
 
+    // timer
+    int previous;
+    int now;
+    int delta;
+    int ticker = 0;
+
+    previous = millitime();
+
     // graphics loop
     while (!glfwWindowShouldClose(window)) {
         glfwPollEvents();
 
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
+
+        // update?
+        now = millitime();
+        delta = now - previous;
+        ticker += delta;
+        if (ticker >= 500) {
+            board_evolve(&b);
+            free(colors);
+            colors = generate_col_buffer(b);
+            glBindBuffer(GL_ARRAY_BUFFER, color_buffer);
+            glBufferSubData(GL_ARRAY_BUFFER, 0, (25 * 2 * 3 * 3 * sizeof(GLfloat)), colors);
+            ticker = 0;
+        }
+        previous = now;
+        // end
 
         shprog_use(shprog);
         glBindVertexArray(vao);
