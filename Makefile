@@ -1,7 +1,7 @@
 
 INCLUDE_PATHS = -I/usr/local/include
 LIBRARY_PATHS = -L/usr/local/lib
-LINKER_FLAGS = -framework OpenGL -lglfw3 -lglew
+LINKER_FLAGS = -framework OpenGL -lglfw -lglew
 
 all: test
 
